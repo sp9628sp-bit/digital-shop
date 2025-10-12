@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        :root {
+            --bg-color: #0f0c29;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glow-color: #00f6ff;
+            --secondary-glow: #9d00ff;
+            --text-color: #e0e0e0;
+            --border-radius: 16px;
+            --shadow: 0 8px 32px 0 rgba(0, 246, 255, 0.37);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 5px var(--glow-color), 0 0 10px var(--glow-color), 0 0 15px var(--glow-color); }
+            50% { text-shadow: 0 0 10px var(--secondary-glow), 0 0 20px var(--secondary-glow), 0 0 30px var(--secondary-glow); }
+            100% { text-shadow: 0 0 5px var(--glow-color), 0 0 10px var(--glow-color), 0 0 15px var(--glow-color); }
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #fff;
+            animation: glow 3s infinite alternate;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glow-color);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 15px var(--glow-color);
+            transform: scale(1.02);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(45deg, var(--glow-color), var(--secondary-glow));
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 246, 255, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(157, 0, 255, 0.6);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10,10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+
+        .btn:active::after {
+            transform: scale(0,0);
+            opacity: .2;
+            transition: 0s;
+        }
+
+        #login-screen, #admin-panel {
+            max-width: 500px;
+            margin: auto;
+        }
+
+        #admin-panel {
+            max-width: 1200px;
+            display: none;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #brandLogoHeader {
+            max-height: 40px;
+            border-radius: 50%;
+        }
+        
+        #brandNameHeader {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            width: auto;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .product-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px var(--glow-color);
+        }
+        
+        .product-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .product-card h3 {
+            margin: 10px 0 5px;
+            color: #fff;
+        }
+        
+        .product-card p {
+            font-size: 0.9em;
+            flex-grow: 1;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .icon-btn {
+            background: transparent;
+            border: 1px solid var(--glow-color);
+            color: var(--glow-color);
+            padding: 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .icon-btn:hover {
+            background: var(--glow-color);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--glow-color);
+        }
+
+        .collapsible {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .collapsible-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        
+        .collapsible-header:hover {
+            background: rgba(0, 246, 255, 0.1);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 20px;
+        }
+        
+        .collapsible-content.active {
+            padding: 20px;
+        }
+
+        #orders-list .order-item {
+            padding: 15px;
+            border: 1px solid var(--secondary-glow);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: rgba(157, 0, 255, 0.1);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="glass-card">
+            <h1>Admin Login</h1>
+            <div class="input-group">
+                <input type="email" id="email" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button id="loginBtn" class="btn">Login</button>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="container">
+        <header>
+            <div class="brand-info">
+                <img id="brandLogoHeader" src="https://via.placeholder.com/50" alt="Brand Logo">
+                <span id="brandNameHeader">Brand Name</span>
+            </div>
+            <button id="logoutBtn" class="btn logout-btn">Logout</button>
+        </header>
+
+        <div class="grid">
+            <div class="glass-card">
+                <h2>Settings</h2>
+                <!-- Brand Settings -->
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggleCollapse(this)">
+                        <h3>Brand Settings</h3>
+                        <span>&#9660;</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <form id="brandSettingsForm">
+                            <div class="input-group">
+                                <input type="text" id="brandName" placeholder="Brand Name" required>
+                            </div>
+                            <div class="input-group">
+                                <input type="url" id="brandLogoUrl" placeholder="Brand Logo URL" required>
+                            </div>
+                            <button type="submit" class="btn">Save Brand</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Contact Settings -->
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggleCollapse(this)">
+                        <h3>Contact Settings</h3>
+                        <span>&#9660;</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <form id="contactSettingsForm">
+                            <div class="input-group"><input type="text" id="contactBrandName" placeholder="Brand Name"></div>
+                            <div class="input-group"><input type="text" id="legalOperator" placeholder="Legal Operator"></div>
+                            <div class="input-group"><input type="text" id="cityStatePin" placeholder="City/State/PIN"></div>
+                            <div class="input-group"><input type="email" id="contactEmail" placeholder="Email"></div>
+                            <div class="input-group"><input type="tel" id="contactPhone" placeholder="Phone"></div>
+                            <div class="input-group"><input type="text" id="address" placeholder="Address"></div>
+                            <div class="input-group"><input type="url" id="youtubeLink" placeholder="YouTube Link"></div>
+                            <div class="input-group"><input type="url" id="telegramLink" placeholder="Telegram Link"></div>
+                            <button type="submit" class="btn">Save Contact</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="glass-card">
+                <h2>Orders</h2>
+                <div id="orders-list"></div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <h2>Product Management</h2>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="grid">
+                    <div class="input-group"><input type="text" id="productTitle" placeholder="Product Title" required></div>
+                    <div class="input-group"><input type="url" id="productImageUrl" placeholder="Product Image URL" required></div>
+                    <div class="input-group"><input type="number" id="originalPrice" placeholder="Original Price" required></div>
+                    <div class="input-group"><input type="number" id="discountPrice" placeholder="Discount Price" required></div>
+                    <div class="input-group" style="grid-column: 1 / -1;"><input type="text" id="productDescription" placeholder="Product Description" required></div>
+                    <div class="input-group" style="grid-column: 1 / -1;"><input type="url" id="razorpayLink" placeholder="Razorpay Payment Link" required></div>
+                </div>
+                <button type="submit" class="btn">Save Product</button>
+                <button type="button" id="clearFormBtn" class="btn" style="background: #555; margin-top: 10px;">Clear Form</button>
+            </form>
+        </div>
+
+        <div class="glass-card">
+            <h2>Products</h2>
+            <div id="products-grid" class="grid"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getDatabase, ref, set, onValue, push, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
+        // ========== PASTE YOUR FIREBASE CONFIG HERE ========== -->
+        const firebaseConfig = {
+  apiKey: "AIzaSyAxQWEcNUw8Wm0pnx9H5hcbIKO_6Hbo0mI",
+  authDomain: "store-x-33671.firebaseapp.com",
+  databaseURL: "https://store-x-33671-default-rtdb.firebaseio.com",
+  projectId: "store-x-33671",
+  storageBucket: "store-x-33671.firebasestorage.app",
+  messagingSenderId: "588209956083",
+  appId: "1:588209956083:web:237cfb27132abe94cc4386"
+};
+        // ========== END FIREBASE CONFIG SECTION ========== -->
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // --- UI Elements ---
+        const loginScreen = document.getElementById('login-screen');
+        const adminPanel = document.getElementById('admin-panel');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const brandSettingsForm = document.getElementById('brandSettingsForm');
+        const contactSettingsForm = document.getElementById('contactSettingsForm');
+        const productForm = document.getElementById('productForm');
+        const productsGrid = document.getElementById('products-grid');
+        const ordersList = document.getElementById('orders-list');
+        const clearFormBtn = document.getElementById('clearFormBtn');
+
+        // --- Auth Logic ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                loginScreen.style.display = 'none';
+                adminPanel.style.display = 'block';
+                loadInitialData();
+            } else {
+                loginScreen.style.display = 'block';
+                adminPanel.style.display = 'none';
+            }
+        });
+
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            signInWithEmailAndPassword(auth, email, password)
+                .catch(error => alert(`Login Failed: ${error.message}`));
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth);
+        });
+
+        // --- Data Loading ---
+        function loadInitialData() {
+            // Load Brand Settings
+            onValue(ref(db, 'meta/brand'), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    document.getElementById('brandName').value = data.name || '';
+                    document.getElementById('brandLogoUrl').value = data.logoUrl || '';
+                    document.getElementById('brandNameHeader').textContent = data.name || 'Brand Name';
+                    document.getElementById('brandLogoHeader').src = data.logoUrl || 'https://via.placeholder.com/50';
+                }
+            });
+
+            // Load Contact Settings
+            onValue(ref(db, 'meta/contact'), (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    document.getElementById('contactBrandName').value = data.brandName || '';
+                    document.getElementById('legalOperator').value = data.operator || '';
+                    document.getElementById('cityStatePin').value = data.cityStatePin || '';
+                    document.getElementById('contactEmail').value = data.email || '';
+                    document.getElementById('contactPhone').value = data.phone || '';
+                    document.getElementById('address').value = data.address || '';
+                    document.getElementById('youtubeLink').value = data.socialYoutube || '';
+                    document.getElementById('telegramLink').value = data.socialTelegram || '';
+                }
+            });
+            
+            // Load Products
+            onValue(ref(db, 'products'), (snapshot) => {
+                productsGrid.innerHTML = '';
+                snapshot.forEach(childSnapshot => {
+                    const productId = childSnapshot.key;
+                    const product = childSnapshot.val();
+                    renderProductCard(productId, product);
+                });
+            });
+
+            // Load Orders
+            onValue(ref(db, 'orders'), (snapshot) => {
+                ordersList.innerHTML = '';
+                 snapshot.forEach(childSnapshot => {
+                    const order = childSnapshot.val();
+                    const orderEl = document.createElement('div');
+                    orderEl.className = 'order-item';
+                    orderEl.innerHTML = `
+                        <strong>Product:</strong> ${order.productSnapshot.title}<br>
+                        <strong>Customer:</strong> ${order.userInput.name} (${order.userInput.email})<br>
+                        <strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}
+                    `;
+                    ordersList.prepend(orderEl);
+                });
+            });
+        }
+
+        // --- Data Saving ---
+        brandSettingsForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            set(ref(db, 'meta/brand'), {
+                name: document.getElementById('brandName').value,
+                logoUrl: document.getElementById('brandLogoUrl').value
+            }).then(() => alert('Brand settings saved!'))
+              .catch(error => alert(error.message));
+        });
+
+        contactSettingsForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            set(ref(db, 'meta/contact'), {
+                brandName: document.getElementById('contactBrandName').value,
+                operator: document.getElementById('legalOperator').value,
+                cityStatePin: document.getElementById('cityStatePin').value,
+                email: document.getElementById('contactEmail').value,
+                phone: document.getElementById('contactPhone').value,
+                address: document.getElementById('address').value,
+                socialYoutube: document.getElementById('youtubeLink').value,
+                socialTelegram: document.getElementById('telegramLink').value
+            }).then(() => alert('Contact settings saved!'))
+              .catch(error => alert(error.message));
+        });
+        
+        productForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const productId = document.getElementById('productId').value;
+            const productData = {
+                title: document.getElementById('productTitle').value,
+                imageUrl: document.getElementById('productImageUrl').value,
+                description: document.getElementById('productDescription').value,
+                realPrice: document.getElementById('originalPrice').value,
+                discountedPrice: document.getElementById('discountPrice').value,
+                razorpayLink: document.getElementById('razorpayLink').value,
+                createdAt: new Date().toISOString()
+            };
+
+            const dbRef = productId ? ref(db, `products/${productId}`) : push(ref(db, 'products'));
+            set(dbRef, productData)
+                .then(() => {
+                    alert('Product saved!');
+                    productForm.reset();
+                    document.getElementById('productId').value = '';
+                })
+                .catch(error => alert(error.message));
+        });
+        
+        clearFormBtn.addEventListener('click', () => {
+            productForm.reset();
+            document.getElementById('productId').value = '';
+        });
+
+        // --- Product Card Logic ---
+        function renderProductCard(productId, product) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <img src="${product.imageUrl}" alt="${product.title}">
+                <h3>${product.title}</h3>
+                <p>${product.description}</p>
+                <p><strong>Price:</strong> <del>₹${product.realPrice}</del> ₹${product.discountedPrice}</p>
+                <div class="card-actions">
+                    <button class="icon-btn edit-btn" data-id="${productId}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/></svg>
+                    </button>
+                    <button class="icon-btn delete-btn" data-id="${productId}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                    </button>
+                </div>
+            `;
+            productsGrid.appendChild(card);
+        }
+        
+        productsGrid.addEventListener('click', (e) => {
+            const btn = e.target.closest('.icon-btn');
+            if (!btn) return;
+
+            const productId = btn.dataset.id;
+            
+            if (btn.classList.contains('edit-btn')) {
+                onValue(ref(db, `products/${productId}`), (snapshot) => {
+                    const product = snapshot.val();
+                    if(product) {
+                        document.getElementById('productId').value = productId;
+                        document.getElementById('productTitle').value = product.title;
+                        document.getElementById('productImageUrl').value = product.imageUrl;
+                        document.getElementById('productDescription').value = product.description;
+                        document.getElementById('originalPrice').value = product.realPrice;
+                        document.getElementById('discountPrice').value = product.discountedPrice;
+                        document.getElementById('razorpayLink').value = product.razorpayLink;
+                        productForm.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, { onlyOnce: true });
+            }
+            
+            if (btn.classList.contains('delete-btn')) {
+                if (confirm('Are you sure you want to delete this product?')) {
+                    remove(ref(db, `products/${productId}`))
+                        .then(() => alert('Product deleted.'))
+                        .catch(error => alert(error.message));
+                }
+            }
+        });
+
+    </script>
+    <script>
+        // --- UI Interactions ---
+        function toggleCollapse(headerElement) {
+            const content = headerElement.nextElementSibling;
+            const isActive = content.classList.contains('active');
+            
+            document.querySelectorAll('.collapsible-content.active').forEach(activeContent => {
+                if (activeContent !== content) {
+                    activeContent.classList.remove('active');
+                    activeContent.style.maxHeight = null;
+                    activeContent.previousElementSibling.querySelector('span').style.transform = 'rotate(0deg)';
+                }
+            });
+
+            if (isActive) {
+                content.classList.remove('active');
+                content.style.maxHeight = null;
+                headerElement.querySelector('span').style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + "px";
+                headerElement.querySelector('span').style.transform = 'rotate(180deg)';
+            }
+        }
+    </script>
+</body>
+</html>
